@@ -1,0 +1,19 @@
+body {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.chartContainerWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.chartContainerBig {
+    width: 60%;
+}
+
+.chartContainerSmall {
+    width: 30%;
+}

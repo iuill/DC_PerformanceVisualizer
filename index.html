@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>確定拠出年金 銘柄パフォーマンス</title>
+
+    <link rel="stylesheet" href="default.css">
+    <script src="./fundResult.js"></script>
+
+    <!--チャート用-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!--テーブル用-->
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>確定拠出年金 銘柄パフォーマンス</h1>
+    </header>
+
+    <section>
+        <article>
+            <div id="tableContainer"></div>
+            <br>
+            <div class="chartContainerWrapper">
+                <div class="chartContainerSmall">
+                    <canvas id="chartDoughnut"></canvas>
+                </div>
+                <div class="chartContainerBig">
+                    <canvas id="chartSonEki"></canvas>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <script>
+        String.prototype.toNumberEx = function () {
+            return Number(this.replace(",", ""));
+        };
+
+        let lbs = [];
+        let pers1 = [];
+        let pers2 = [];
+        let performances = [];
+        let grid_data = [];
+        let hyoukagaku_sum = 0;
+        let syutokugaku_sum = 0;
+
+        dat.forEach(element => {
+            hyoukagaku_sum += element.hyoukagaku.toNumberEx();
+            syutokugaku_sum += element.syutokugaku.toNumberEx();
+        });
+        dat.forEach(element => {
+            let fundname = element.name;
+            let hyoukagaku = element.hyoukagaku.toNumberEx();
+            let syutokugaku = element.syutokugaku.toNumberEx();
+            let son_eki = element.son_eki.toNumberEx();
+
+            let hyoukagaku_perc = hyoukagaku / hyoukagaku_sum * 100;
+            let syutokugaku_perc = syutokugaku / syutokugaku_sum * 100;
+            let son_eki_perc = hyoukagaku / syutokugaku * 100;
+
+            lbs.push(fundname);
+            pers1.push(hyoukagaku_perc);
+            pers2.push(syutokugaku_perc);
+            performances.push(son_eki_perc);
+
+            grid_data.push([fundname, hyoukagaku, syutokugaku, Math.round(hyoukagaku_perc * 10) / 10, Math.round(syutokugaku_perc * 10) / 10, son_eki, Math.round(son_eki_perc * 10) / 10]);
+        });
+
+
+        // -----------------------------------------------
+        // テーブル
+        // -----------------------------------------------
+        new gridjs.Grid({
+            sort: true,
+            resizable: true,
+            columns: ["ファンド", "評価額_円", "取得価額_円", "評価額比率_%", "取得価額比率_%", "損益_円", "パフォーマンス_%"],
+            data: grid_data
+        }).render(document.getElementById("tableContainer"));
+
+
+        // -----------------------------------------------
+        // ドーナツグラフ
+        // -----------------------------------------------
+        var ctx = document.getElementById('chartDoughnut').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: lbs,
+                datasets: [{
+                    label: 'データの数1',
+                    data: pers1,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(75, 102, 192, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }, {
+                    label: 'データの数2',
+                    data: pers2,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(75, 102, 192, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                title: {
+                    fontSize: 16,
+                    display: true,
+                    position: 'top',
+                    text: '二重ドーナツ'
+                },
+            }
+        });
+
+
+        // -----------------------------------------------
+        // パフォーマンスのグラフ
+        // -----------------------------------------------
+        var ctx = document.getElementById('chartSonEki').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: lbs,
+                datasets: [{
+                    label: 'パフォーマンス（%）',
+                    data: performances,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 102, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                title: {
+                    fontSize: 16,
+                    display: true,
+                    position: 'top',
+                    text: '棒グラフ'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                indexAxis: 'y',
+            }
+        });
+    </script>
+</body>
+
+</html>
