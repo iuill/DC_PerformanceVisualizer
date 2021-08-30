@@ -6,6 +6,10 @@
 
 公式サイトの機能では銘柄ごとのパフォーマンスが見れなかったため
 
+## アプリイメージ
+
+<img src="https://github.com/iuill/images/blob/main/DC_PerformanceVisualizer/img.png" width="95%">
+
 ## 構成
 
 当方の環境では以下構成で構築
